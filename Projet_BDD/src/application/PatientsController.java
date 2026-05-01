@@ -21,7 +21,7 @@ public class PatientsController {
     @FXML private ScrollPane listScrollPane;
     @FXML private Button toggleButton;
     @FXML private DatePicker ddnField;
-    @FXML private ComboBox<String> medecinField;
+ 
     
    
     
@@ -35,11 +35,18 @@ public class PatientsController {
 
     // Simple Patient model
     static class Patient {
-        String nom, prenom, telephone, medecin, adresse;
-		LocalDate dateNaissance;
-        Patient(String nom, String prenom, String tel, String med, String adr, LocalDate ddn) {
-            this.nom = nom; this.prenom = prenom; this.telephone = tel;
-            this.medecin = med; this.adresse = adr; this.dateNaissance = ddn;
+        int id;
+        String nom, prenom, telephone, adresse;
+        LocalDate dateNaissance;
+
+        Patient(int id, String nom, String prenom, LocalDate ddn,
+                String tel, String adresse) {
+            this.id = id;
+            this.nom = nom;
+            this.prenom = prenom;
+            this.dateNaissance = ddn;
+            this.telephone = tel;
+            this.adresse = adresse;
         }
     }
 
@@ -78,9 +85,7 @@ public class PatientsController {
         info.getChildren().addAll(name, phone);
         HBox.setHgrow(info, Priority.ALWAYS);
 
-        // Doctor label
-        Label doctor = new Label(p.medecin);
-        doctor.getStyleClass().add("patient-doctor");
+        
 
         // Edit button
         Button editBtn = new Button();
@@ -94,7 +99,7 @@ public class PatientsController {
         deleteBtn.getStyleClass().add("delete-btn");
         deleteBtn.setOnAction(e -> openDeleteConfirmation(p));
 
-        row.getChildren().addAll(icon, info, doctor, editBtn, deleteBtn);
+        row.getChildren().addAll(icon, info, editBtn, deleteBtn);
         return row;
     }
 
@@ -124,12 +129,6 @@ public class PatientsController {
         TextField nomField = new TextField(); nomField.setPromptText("Nom");
         TextField prenomField = new TextField(); prenomField.setPromptText("Prénom");
         TextField telField = new TextField(); telField.setPromptText("+213XXXXXXXXX");
-        ComboBox<String> medecinField = new ComboBox<>();
-        medecinField.setPrefWidth(300);
-        for (MedecinsController.Medecin m : MedecinDAO.getAllMedecins()) {
-            medecinField.getItems().add("Dr. " + m.nom + " " + m.prenom);
-        }
-        medecinField.setPromptText("Choisir un médecin");
         TextField adresseField = new TextField(); adresseField.setPromptText("Adresse");
         DatePicker ddnField = new DatePicker();
         ddnField.setPromptText("Choisir une date");
@@ -139,11 +138,13 @@ public class PatientsController {
         saveBtn.setStyle("-fx-background-color: #296262; -fx-text-fill: white; " +
                         "-fx-background-radius: 8; -fx-pref-width: 300; -fx-padding: 10;");
         saveBtn.setOnAction(e -> {
-            Patient p = new Patient(
-                nomField.getText(), prenomField.getText(), telField.getText(),
-                medecinField.getValue(), adresseField.getText(),
-                ddnField.getValue()  
-            );
+        	Patient p = new Patient(
+        		    0,
+        		    nomField.getText(), prenomField.getText(),
+        		    ddnField.getValue(),
+        		    telField.getText(),
+        		    adresseField.getText()
+        		);
             PatientDAO.addPatient(p);
             patients.add(p);
             refreshList(patients);
@@ -153,7 +154,6 @@ public class PatientsController {
             new Label("Nom"), nomField,
             new Label("Prénom"), prenomField,
             new Label("Téléphone"), telField,
-            new Label("Médecin"), medecinField,
             new Label("Adresse"), adresseField,
             new Label("Date de naissance"), ddnField,
             saveBtn
@@ -178,14 +178,9 @@ public class PatientsController {
         TextField nomField = new TextField(p.nom);
         TextField prenomField = new TextField(p.prenom);
         TextField telField = new TextField(p.telephone);
-        ComboBox<String> medecinField = new ComboBox<>();
-        medecinField.setPrefWidth(300);
-        for (MedecinsController.Medecin m : MedecinDAO.getAllMedecins()) {
-            medecinField.getItems().add("Dr. " + m.nom + " " + m.prenom);
-        }
-        medecinField.setPromptText("Choisir un médecin");
         TextField adresseField = new TextField(p.adresse);
         DatePicker ddnField = new DatePicker();
+        ddnField.setValue(p.dateNaissance);
         ddnField.setPrefWidth(300);
         
 
@@ -196,10 +191,9 @@ public class PatientsController {
             p.nom = nomField.getText();
             p.prenom = prenomField.getText();
             p.telephone = telField.getText();
-            p.medecin = medecinField.getValue();
             p.adresse = adresseField.getText();
             p.dateNaissance = ddnField.getValue();
-            PatientDAO.updatePatient(p, p.nom);
+            PatientDAO.updatePatient(p);
             refreshList(patients);
             dialog.close();
         });
@@ -208,7 +202,6 @@ public class PatientsController {
             new Label("Nom"), nomField,
             new Label("Prénom"), prenomField,
             new Label("Téléphone"), telField,
-            new Label("Médecin"), medecinField,
             new Label("Adresse"), adresseField,
             new Label("Date de naissance"), ddnField,
             saveBtn

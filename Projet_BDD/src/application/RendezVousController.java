@@ -22,14 +22,23 @@ public class RendezVousController {
     @FXML private ComboBox<String> filterMedecin;
     @FXML private DatePicker filterDate;
 
+    
     static class RendezVous {
-        String patient, medecin, creneau;
+        int id, numPatient, numMedecin;
+        String patient, medecin, creneau, statut;
         LocalDate date;
-        RendezVous(String patient, String medecin, LocalDate date, String creneau) {
+
+        RendezVous(int id, int numPatient, int numMedecin,
+                   String patient, String medecin,
+                   LocalDate date, String creneau, String statut) {
+            this.id = id;
+            this.numPatient = numPatient;
+            this.numMedecin = numMedecin;
             this.patient = patient;
             this.medecin = medecin;
             this.date = date;
             this.creneau = creneau;
+            this.statut = statut;
         }
     }
 
@@ -38,9 +47,10 @@ public class RendezVousController {
     private List<String> patientsList = new ArrayList<>();
     private List<String> medecinsList = new ArrayList<>();
     private final String[] CRENEAUX = {
-        "09:00", "10:00", "11:00", "12:00",
-        "13:00", "14:00", "15:00", "16:00", "17:00"
-    };
+    	    "8:00", "8:30", "9:00", "9:30", "10:00", "10:30",
+    	    "11:00", "11:30", "13:00", "13:30", "14:00", "14:30",
+    	    "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"
+    	};
 
     @FXML
     public void initialize() {
@@ -198,6 +208,7 @@ public class RendezVousController {
         Button saveBtn = new Button("Enregistrer");
         saveBtn.setStyle("-fx-background-color: #2d5f5a; -fx-text-fill: white; " +
                 "-fx-background-radius: 8; -fx-pref-width: 300; -fx-padding: 10;");
+        
         saveBtn.setOnAction(e -> {
             if (patientBox.getValue() == null || medecinBox.getValue() == null
                     || datePicker.getValue() == null || creneauBox.getValue() == null) {
@@ -211,14 +222,21 @@ public class RendezVousController {
                 availabilityLabel.setStyle("-fx-text-fill: #cc0000;");
                 return;
             }
+
+            int numPatient = getPatientId(patientBox.getValue());
+            int numMedecin = getMedecinId(medecinBox.getValue());
+
+            RendezVousDAO.addRendezVous(numPatient, numMedecin,
+                    datePicker.getValue(), creneauBox.getValue());
+
             RendezVous rdv = new RendezVous(
-            	    patientBox.getValue(), medecinBox.getValue(),
-            	    datePicker.getValue(), creneauBox.getValue()
-            	);
-            	RendezVousDAO.addRendezVous(rdv);  // ← pass the rdv object
-            	rendezVousList.add(rdv);
-            	refreshList(rendezVousList);
-            	dialog.close();
+                0, numPatient, numMedecin,
+                patientBox.getValue(), medecinBox.getValue(),
+                datePicker.getValue(), creneauBox.getValue(), "Planifie"
+            );
+            rendezVousList.add(rdv);
+            refreshList(rendezVousList);
+            dialog.close();
         });
 
         form.getChildren().addAll(
@@ -283,7 +301,7 @@ public class RendezVousController {
         ouiBtn.setStyle("-fx-background-color: #d4ece8; " +
                 "-fx-background-radius: 8; -fx-padding: 8 20;");
         ouiBtn.setOnAction(e -> {
-        	RendezVousDAO.deleteRendezVous(rdv);
+        	RendezVousDAO.deleteRendezVous(rdv.id);
             rendezVousList.remove(rdv);
             refreshList(rendezVousList);
             dialog.close();
@@ -299,6 +317,20 @@ public class RendezVousController {
 
         dialog.setScene(new Scene(box, 350, 200));
         dialog.show();
+    }
+    
+    private int getPatientId(String nomPrenom) {
+        for (PatientsController.Patient p : PatientDAO.getAllPatients()) {
+            if ((p.nom + " " + p.prenom).equals(nomPrenom)) return p.id;
+        }
+        return -1;
+    }
+
+    private int getMedecinId(String nomPrenom) {
+        for (MedecinsController.Medecin m : MedecinDAO.getAllMedecins()) {
+            if (("Dr. " + m.nom + " " + m.prenom).equals(nomPrenom)) return m.id;
+        }
+        return -1;
     }
     
     private ImageView getIcon(String filename) {

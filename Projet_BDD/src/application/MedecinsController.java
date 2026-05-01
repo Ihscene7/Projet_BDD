@@ -14,6 +14,7 @@ import javafx.scene.layout.GridPane;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MedecinsController {
 
@@ -23,10 +24,16 @@ public class MedecinsController {
     @FXML private Button toggleButton;
 
     static class Medecin {
-        String nom, prenom, specialite, telephone;
-        Medecin(String nom, String prenom, String specialite, String telephone) {
+        int id;
+        int codeSpecialite;
+        String nom, prenom, telephone, specialite;
+
+        Medecin(int id, String nom, String prenom,
+                int codeSpecialite, String specialite, String telephone) {
+            this.id = id;
             this.nom = nom;
             this.prenom = prenom;
+            this.codeSpecialite = codeSpecialite;
             this.specialite = specialite;
             this.telephone = telephone;
         }
@@ -138,10 +145,15 @@ public class MedecinsController {
         prenomField.setPromptText("Prénom");
 
         // Speciality ComboBox
+     // Load specialities from DB
+        Map<String, Integer> specialites = SpecialiteDAO.getAllSpecialites();
+
         ComboBox<String> specialiteBox = new ComboBox<>();
-        specialiteBox.getItems().addAll(SpecialiteDAO.getAllSpecialites());
+        specialiteBox.getItems().addAll(specialites.keySet());
         specialiteBox.setPromptText("Choisir une spécialité");
         specialiteBox.setPrefWidth(300);
+
+    
 
         TextField telField = new TextField();
         telField.setPromptText("+213XXXXXXXXX");
@@ -150,13 +162,13 @@ public class MedecinsController {
         saveBtn.setStyle("-fx-background-color: #2d5f5a; -fx-text-fill: white; " +
                 "-fx-background-radius: 8; -fx-pref-width: 300; -fx-padding: 10;");
         saveBtn.setOnAction(e -> {
-            if (nomField.getText().isEmpty() || specialiteBox.getValue() == null) {
-                return; // don't save if empty
-            }
+            int codeSP = specialites.get(specialiteBox.getValue()); // ← get ID
             Medecin m = new Medecin(
+                0,
                 nomField.getText(),
                 prenomField.getText(),
-                specialiteBox.getValue(),
+                codeSP,                    // ← use codeSP
+                specialiteBox.getValue(),  // ← specialite name for display
                 telField.getText()
             );
             MedecinDAO.addMedecin(m);
@@ -195,7 +207,8 @@ public class MedecinsController {
 
         // Speciality ComboBox pre-selected
         ComboBox<String> specialiteBox = new ComboBox<>();
-        specialiteBox.getItems().addAll(SpecialiteDAO.getAllSpecialites());
+        Map<String, Integer> specialites = SpecialiteDAO.getAllSpecialites();
+        specialiteBox.getItems().addAll(specialites.keySet());
         specialiteBox.setValue(m.specialite);
         specialiteBox.setPrefWidth(300);
 
@@ -208,8 +221,9 @@ public class MedecinsController {
             m.nom = nomField.getText();
             m.prenom = prenomField.getText();
             m.specialite = specialiteBox.getValue();
+            m.codeSpecialite = specialites.get(specialiteBox.getValue());
             m.telephone = telField.getText();
-            MedecinDAO.updateMedecin(m, m.nom);
+            MedecinDAO.updateMedecin(m);
             refreshList(medecins);
             dialog.close();
         });

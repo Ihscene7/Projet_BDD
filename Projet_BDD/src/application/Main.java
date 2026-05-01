@@ -25,7 +25,7 @@ public class Main extends Application {
     // Static helper — call this from any controller to switch scenes
     public static void loadScene(String fxmlFile, String title) throws Exception {
         FXMLLoader loader = new FXMLLoader(
-            Main.class.getResource(fxmlFile)  // ← use the parameter
+            Main.class.getResource(fxmlFile) 
         );
 
         Parent root = loader.load();

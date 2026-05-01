@@ -1,35 +1,21 @@
 package application;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class SpecialiteDAO {
 
-    public static List<String> getAllSpecialites() {
-        List<String> list = new ArrayList<>();
-        String sql = "SELECT NOM FROM SPECIALITES ORDER BY NOM";
+    // Returns Map of Nom_SP -> code_SP for ComboBox
+    public static Map<String, Integer> getAllSpecialites() {
+        Map<String, Integer> map = new LinkedHashMap<>();
+        String sql = "SELECT code_SP, Nom_SP FROM Specialite ORDER BY Nom_SP";
         try (Statement stmt = DatabaseConnection.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                list.add(rs.getString("NOM"));
+                map.put(rs.getString("Nom_SP"), rs.getInt("code_SP"));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-
-    public static int getIdByNom(String nom) {
-        String sql = "SELECT ID FROM SPECIALITES WHERE NOM=?";
-        try (PreparedStatement stmt =
-                DatabaseConnection.getConnection().prepareStatement(sql)) {
-            stmt.setString(1, nom);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) return rs.getInt("ID");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return -1;
+        } catch (SQLException e) { e.printStackTrace(); }
+        return map;
     }
 }
