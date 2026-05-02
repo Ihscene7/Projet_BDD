@@ -200,13 +200,26 @@ public class RendezVousController {
         String medecinFilter = filterMedecin.getValue();
         LocalDate dateFilter = filterDate.getValue();
 
+        // Si aucun filtre sélectionné
+        if ((medecinFilter == null || medecinFilter.equals("Tous")) 
+                && dateFilter == null) {
+            refreshList(rendezVousList);
+            return;
+        }
+
         List<RendezVous> filtered = new ArrayList<>();
         for (RendezVous rdv : rendezVousList) {
+            
+            // Comparaison flexible — avec ou sans "Dr."
             boolean medecinMatch = medecinFilter == null
                     || medecinFilter.equals("Tous")
-                    || rdv.medecin.equals(medecinFilter);
+                    || rdv.medecin.equals(medecinFilter)
+                    || ("Dr. " + rdv.medecin).equals(medecinFilter)
+                    || rdv.medecin.equals(medecinFilter.replace("Dr. ", ""));
+
             boolean dateMatch = dateFilter == null
                     || rdv.date.equals(dateFilter);
+
             if (medecinMatch && dateMatch) {
                 filtered.add(rdv);
             }
@@ -342,17 +355,14 @@ public class RendezVousController {
         }
     }
 
-    private boolean isSlotTaken(String medecin, LocalDate date, String creneau) {
-        for (RendezVous rdv : rendezVousList) {
-            if (rdv.medecin.equals(medecin)
-                    && rdv.date.equals(date)
-                    && rdv.creneau.equals(creneau)) {
-                return true;
-            }
-        }
-        return false;
+    private boolean isSlotTaken(String medecinNom, LocalDate date, String creneau) {
+        // Get medecin ID from name
+        int numMedecin = getMedecinId(medecinNom);
+        if (numMedecin == -1) return false;
+        return RendezVousDAO.isSlotTaken(numMedecin, date, creneau);
     }
-
+    
+    
     private void openDeleteConfirmation(RendezVous rdv) {
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);

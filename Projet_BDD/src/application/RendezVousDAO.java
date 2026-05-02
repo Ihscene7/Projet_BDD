@@ -11,7 +11,7 @@ public class RendezVousDAO {
         List<RendezVousController.RendezVous> list = new ArrayList<>();
         String sql = "SELECT R.Num_RendezVous, R.Num_Patient, R.Num_Medecin, " +
                      "P.Nom_Pat || ' ' || P.Prenom_Pat AS Patient, " +
-                     "M.Nom_Med || ' ' || M.Prenom_Med AS Medecin, " +
+                     "'Dr. ' || M.Nom_Med || ' ' || M.Prenom_Med AS Medecin, " +
                      "R.Date_RendezVous, R.Heure_RendezVous, R.Statut " +
                      "FROM RendezVous R " +
                      "JOIN Patient P ON R.Num_Patient = P.Num_Patient " +

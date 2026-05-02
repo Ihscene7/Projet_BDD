@@ -19,7 +19,7 @@
 
                 <VBox alignment="CENTER" spacing="10.0">
                     <children>
-                        <Button fx:id="btnRendezVous" onAction="#openRendezVous" styleClass="menu-button">
+                        <Button  onAction="#openRendezVous" styleClass="menu-button">
                             <graphic>
                                 <ImageView fitHeight="90" fitWidth="90" preserveRatio="true">
                                     <image>
@@ -37,7 +37,7 @@
 
                 <VBox alignment="CENTER" spacing="10.0">
                     <children>
-                        <Button fx:id="btnPatients" onAction="#openPatients" styleClass="menu-button">
+                        <Button  onAction="#openPatients" styleClass="menu-button">
                             <graphic>
                                 <ImageView fitHeight="90" fitWidth="90" preserveRatio="true">
                                     <image>
@@ -55,7 +55,7 @@
 
                 <VBox alignment="CENTER" spacing="10.0">
                     <children>
-                        <Button fx:id="btnMedecins" onAction="#openMedecins" styleClass="menu-button">
+                        <Button  onAction="#openMedecins" styleClass="menu-button">
                             <graphic>
                                 <ImageView fitHeight="90" fitWidth="90" preserveRatio="true">
                                     <image>

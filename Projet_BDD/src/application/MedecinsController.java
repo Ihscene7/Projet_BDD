@@ -314,7 +314,7 @@ public class MedecinsController {
         	    "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"
         	};
 
-        // Generate next 5 days
+        // Generate next 8 days
         GridPane grid = new GridPane();
         grid.setHgap(8);
         grid.setVgap(8);
@@ -323,7 +323,7 @@ public class MedecinsController {
         LocalDate today = LocalDate.now();
         String[] dayNames = {"Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam.", "Dim."};
 
-        for (int col = 0; col < 5; col++) {
+        for (int col = 0; col < 8; col++) {
             LocalDate day = today.plusDays(col);
             String dayName = dayNames[day.getDayOfWeek().getValue() - 1];
 
@@ -349,7 +349,7 @@ public class MedecinsController {
             grid.add(timeLabel, 0, row + 1);
 
             // Slot buttons for each day
-            for (int col = 0; col < 5; col++) {
+            for (int col = 0; col < 8; col++) {
                 LocalDate day = today.plusDays(col);
                 boolean taken = isSlotTakenForDoctor(m, day, creneau);
 
@@ -396,7 +396,7 @@ public class MedecinsController {
                                    new Separator(), scrollPane, closeBtn);
         main.setAlignment(Pos.TOP_LEFT);
 
-        dialog.setScene(new Scene(main, 550, 500));
+        dialog.setScene(new Scene(main, 850, 500));
         dialog.show();
     }
     
