@@ -73,4 +73,16 @@ public class RendezVousDAO {
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
     }
+    
+    public static void updateStatut(int numRendezVous, String statut) {
+        String sql = "UPDATE RendezVous SET Statut=? WHERE Num_RendezVous=?";
+        try (PreparedStatement stmt =
+                DatabaseConnection.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, statut);
+            stmt.setInt(2, numRendezVous);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -87,7 +87,8 @@ public class RendezVousController {
         row.setAlignment(Pos.CENTER_LEFT);
 
         // Icon
-        Label icon = new Label("📅");
+        Label icon = new Label();
+        icon.setGraphic(getIcon("calendar.png"));
         icon.setStyle("-fx-font-size: 20px;");
 
         // Info VBox
@@ -98,7 +99,22 @@ public class RendezVousController {
         medecin.getStyleClass().add("patient-phone");
         info.getChildren().addAll(patient, medecin);
         HBox.setHgrow(info, Priority.ALWAYS);
+        
+     // Statut label cliquable
+        VBox statutBox = new VBox(5);
+        statutBox.setAlignment(Pos.CENTER);
+        statutBox.setPrefWidth(90);
 
+        Label statutLabel = new Label(rdv.statut);
+        statutLabel.setStyle(getStatutStyle(rdv.statut));
+        statutLabel.setPadding(new Insets(4, 12, 4, 12));
+        statutLabel.setMaxWidth(Double.MAX_VALUE);
+        statutLabel.setAlignment(Pos.CENTER);
+        statutLabel.setCursor(javafx.scene.Cursor.HAND); // ← curseur main au survol
+        statutLabel.setOnMouseClicked(e -> openStatutDialog(rdv, statutLabel)); // ← clic direct
+
+        statutBox.getChildren().add(statutLabel); // ← plus de bouton séparé
+        
         // Date + time
         VBox dateBox = new VBox(3);
         dateBox.setAlignment(Pos.CENTER_RIGHT);
@@ -114,8 +130,69 @@ public class RendezVousController {
         deleteBtn.getStyleClass().add("delete-btn");
         deleteBtn.setOnAction(e -> openDeleteConfirmation(rdv));
 
-        row.getChildren().addAll(icon, info, dateBox, deleteBtn);
+        row.getChildren().addAll(icon, info, statutBox, dateBox, deleteBtn);
         return row;
+    }
+    
+    //for the statut colour
+    private String getStatutStyle(String statut) {
+        switch (statut) {
+            case "Planifie":
+                return "-fx-background-color: #fff3cd; -fx-text-fill: #856404; " +
+                       "-fx-background-radius: 8; -fx-font-size: 12px; -fx-font-weight: bold;";
+            case "Effectue":
+                return "-fx-background-color: #d4ece8; -fx-text-fill: #2d5f5a; " +
+                       "-fx-background-radius: 8; -fx-font-size: 12px; -fx-font-weight: bold;";
+            case "Annule":
+                return "-fx-background-color: #f8d7da; -fx-text-fill: #842029; " +
+                       "-fx-background-radius: 8; -fx-font-size: 12px; -fx-font-weight: bold;";
+            default:
+                return "-fx-background-color: #e0e0e0; -fx-background-radius: 8; " +
+                       "-fx-font-size: 12px;";
+        }
+    }
+    
+    private void openStatutDialog(RendezVous rdv, Label statutLabel) {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setTitle("Modifier le statut");
+
+        VBox box = new VBox(15);
+        box.setPadding(new Insets(25));
+        box.setAlignment(Pos.CENTER);
+        box.setStyle("-fx-background-color: white;");
+
+        Label title = new Label("Modifier le statut");
+        title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+
+        Label current = new Label("Statut actuel : " + rdv.statut);
+        current.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        ComboBox<String> statutBox = new ComboBox<>();
+        statutBox.getItems().addAll("Planifie", "Effectue", "Annule");
+        statutBox.setValue(rdv.statut);
+        statutBox.setPrefWidth(250);
+
+        Button saveBtn = new Button("Enregistrer");
+        saveBtn.setStyle("-fx-background-color: #2d5f5a; -fx-text-fill: white; " +
+                        "-fx-background-radius: 8; -fx-pref-width: 200; -fx-padding: 8;");
+        saveBtn.setOnAction(e -> {
+            String newStatut = statutBox.getValue();
+            rdv.statut = newStatut;
+
+            // Update in DB
+            RendezVousDAO.updateStatut(rdv.id, newStatut);
+
+            // Update label visually
+            statutLabel.setText(newStatut);
+            statutLabel.setStyle(getStatutStyle(newStatut));
+
+            dialog.close();
+        });
+
+        box.getChildren().addAll(title, current, statutBox, saveBtn);
+        dialog.setScene(new Scene(box, 300, 220));
+        dialog.show();
     }
 
     @FXML
@@ -289,7 +366,7 @@ public class RendezVousController {
         Label title = new Label("Confirmation");
         title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
-        Label msg = new Label("Est-ce que vous êtes sûr de vouloir\nannuler ce rendez-vous ?");
+        Label msg = new Label("Est-ce que vous êtes sûr de vouloir\nsupprimer ce rendez-vous ?");
         msg.setStyle("-fx-font-size: 13px;");
         msg.setWrapText(true);
         msg.setMaxWidth(280);

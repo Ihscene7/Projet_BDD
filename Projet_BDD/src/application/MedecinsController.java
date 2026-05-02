@@ -309,10 +309,10 @@ public class MedecinsController {
 
         // All time slots
         String[] allCreneaux = {
-            "08:00", "09:00", "10:00",
-            "11:00", "13:00", "14:00",
-            "15:00", "16:00", "17:00"
-        };
+        	    "8:00", "8:30", "9:00", "9:30", "10:00", "10:30",
+        	    "11:00", "11:30", "13:00", "13:30", "14:00", "14:30",
+        	    "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"
+        	};
 
         // Generate next 5 days
         GridPane grid = new GridPane();
@@ -399,14 +399,11 @@ public class MedecinsController {
         dialog.setScene(new Scene(main, 550, 500));
         dialog.show();
     }
+    
     private boolean isSlotTakenForDoctor(Medecin m, LocalDate date, String creneau) {
-        // Fake taken slots for demo
-        // Replace with real DB check later
-        return (m.nom.equals("Meziane") && creneau.equals("09:00") 
-                && date.equals(LocalDate.now())) ||
-               (m.nom.equals("Hamid") && creneau.equals("11:00") 
-                && date.equals(LocalDate.now().plusDays(1)));
+        return RendezVousDAO.isSlotTaken(m.id, date, creneau);
     }
+    
     @FXML
     private void goBack() throws Exception {
         Main.loadScene("menu.fxml", "Menu Principal");
