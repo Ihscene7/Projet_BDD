@@ -26,7 +26,7 @@ public class PatientsController {
    
     
     @FXML
-    private void toggleList() {
+    private void toggleList() { 		//Affiche/cache la ScrollPane de la liste
         boolean visible = listScrollPane.isVisible();
         listScrollPane.setVisible(!visible);
         listScrollPane.setManaged(!visible);
@@ -55,20 +55,21 @@ public class PatientsController {
   
 
     @FXML
-    public void initialize() {
-        // Load from DB instead of fake data
+    public void initialize() {		
+        // Charge la liste des patients depuis Oracle au démarrage
         patients = PatientDAO.getAllPatients();
         refreshList(patients);
     }
 
     private void refreshList(List<Patient> list) {
+    	// Vide et recrée tous les éléments visuels de la liste
         patientListBox.getChildren().clear();
         for (Patient p : list) {
             patientListBox.getChildren().add(createPatientRow(p));
         }
     }
 
-    private HBox createPatientRow(Patient p) {
+    private HBox createPatientRow(Patient p) {	//Crée une ligne HBox pour un patient (icône, nom, téléphone,et les boutons edit et delete)
         HBox row = new HBox(15);
         row.getStyleClass().add("patient-row");
         row.setAlignment(Pos.CENTER_LEFT);
@@ -104,7 +105,7 @@ public class PatientsController {
     }
 
     @FXML
-    private void handleSearch() {
+    private void handleSearch() { 		//Filtre la liste selon le texte saisi dans la barre de recherche
         String query = searchField.getText().toLowerCase();
         if (query.isEmpty()) {
             refreshList(patients);
@@ -113,8 +114,8 @@ public class PatientsController {
         refreshList(PatientDAO.searchPatients(query));
     }
 
-    @FXML
-    private void openAddDialog() {
+    @FXML				
+    private void openAddDialog() {		//Ouvre un dialog pour ajouter un nouveau patient
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Nouveau patient");
@@ -136,8 +137,26 @@ public class PatientsController {
 
         Button saveBtn = new Button("Enregistrer");
         saveBtn.setStyle("-fx-background-color: #296262; -fx-text-fill: white; " +
-                        "-fx-background-radius: 8; -fx-pref-width: 300; -fx-padding: 10;");
+                        "-fx-background-radius: 8; -fx-pref-width: 300; -fx-padding: 10; -fx-cursor: hand;");
+        
+        Label ObligationChamps = new Label(""); 
+        
         saveBtn.setOnAction(e -> {
+        	LocalDate limite = LocalDate.of(1900, 1, 1);
+        	if (nomField.getText().isEmpty() || prenomField.getText().isEmpty()
+                    || ddnField.getValue() == null || telField.getText().isEmpty() || adresseField.getText().isEmpty()) {
+        		ObligationChamps.setText("Veuillez remplir tous les champs.");
+        		ObligationChamps.setStyle("-fx-text-fill: #cc0000;");
+                return;
+            }else if (telField.getText().length() != 10 || !telField.getText().startsWith("0")) {
+            	ObligationChamps.setText("Numéro de téléphone incorrect !");
+        		ObligationChamps.setStyle("-fx-text-fill: #cc0000;");
+        		return;
+            } else if ( ddnField.getValue().isAfter(LocalDate.now()) ||  ddnField.getValue().isBefore(limite) ) {
+            	ObligationChamps.setText("Date de naissance incorrect !");
+        		ObligationChamps.setStyle("-fx-text-fill: #cc0000;");
+        		return;
+            }
         	Patient p = new Patient(
         		    0,
         		    nomField.getText(), prenomField.getText(),
@@ -156,6 +175,7 @@ public class PatientsController {
             new Label("Téléphone"), telField,
             new Label("Adresse"), adresseField,
             new Label("Date de naissance"), ddnField,
+            ObligationChamps,
             saveBtn
         );
 
@@ -163,7 +183,7 @@ public class PatientsController {
         dialog.show();
     }
 
-    private void openEditDialog(Patient p) {
+    private void openEditDialog(Patient p) {		// Ouvre un dialog pré-rempli pour modifier un patient existant
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Modifier patient");
@@ -182,12 +202,27 @@ public class PatientsController {
         DatePicker ddnField = new DatePicker();
         ddnField.setValue(p.dateNaissance);
         ddnField.setPrefWidth(300);
-        
+        Label ObligationChamps = new Label(""); 
 
         Button saveBtn = new Button("Enregistrer");
         saveBtn.setStyle("-fx-background-color: #2d5f5a; -fx-text-fill: white; " +
-                        "-fx-background-radius: 8; -fx-pref-width: 300; -fx-padding: 10;");
+                        "-fx-background-radius: 8; -fx-pref-width: 300; -fx-padding: 10; -fx-cursor: hand;");
         saveBtn.setOnAction(e -> {
+        	LocalDate limite = LocalDate.of(1900, 1, 1);
+        	if (nomField.getText().isEmpty() || prenomField.getText().isEmpty()
+                    || ddnField.getValue() == null || telField.getText().isEmpty() || adresseField.getText().isEmpty()) {
+        		ObligationChamps.setText("Veuillez remplir tous les champs.");
+        		ObligationChamps.setStyle("-fx-text-fill: #cc0000;");
+                return;
+            } else if (telField.getText().length() != 10 || !telField.getText().startsWith("0")) {
+            	ObligationChamps.setText("Numéro de téléphone incorrect !");
+        		ObligationChamps.setStyle("-fx-text-fill: #cc0000;");
+        		return;
+            } else if ( ddnField.getValue().isAfter(LocalDate.now()) ||  ddnField.getValue().isBefore(limite) ) {
+            	ObligationChamps.setText("Date de naissance incorrect !");
+        		ObligationChamps.setStyle("-fx-text-fill: #cc0000;");
+        		return;
+            }
             p.nom = nomField.getText();
             p.prenom = prenomField.getText();
             p.telephone = telField.getText();
@@ -204,6 +239,7 @@ public class PatientsController {
             new Label("Téléphone"), telField,
             new Label("Adresse"), adresseField,
             new Label("Date de naissance"), ddnField,
+            ObligationChamps,
             saveBtn
         );
 
@@ -211,7 +247,7 @@ public class PatientsController {
         dialog.show();
     }
 
-    private void openDeleteConfirmation(Patient p) {
+    private void openDeleteConfirmation(Patient p) {		// Ouvre un dialog de confirmation avant suppression
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Confirmation");
@@ -226,8 +262,8 @@ public class PatientsController {
 
         Label msg = new Label("Est-ce que vous êtes sûr de vouloir supprimer ce patient ?");
         msg.setStyle("-fx-font-size: 13px;");
-        msg.setWrapText(true);  // ← add this line
-        msg.setMaxWidth(280);   // ← add this line
+        msg.setWrapText(true);  
+        msg.setMaxWidth(280);   
 
         HBox buttons = new HBox(15);
         buttons.setAlignment(Pos.CENTER);
@@ -253,7 +289,7 @@ public class PatientsController {
         dialog.show();
     }
 
-    private ImageView getIcon(String filename) {
+    private ImageView getIcon(String filename) {		// Charge une icône PNG locale et retourne un ImageView 20x20 utilisé par le controller pour les icônes des boutons
         javafx.scene.image.Image img = new javafx.scene.image.Image(
             getClass().getResourceAsStream(filename)
         );
@@ -265,7 +301,7 @@ public class PatientsController {
     }
     
     @FXML
-    private void goBack() throws Exception {
+    private void goBack() throws Exception {		// Retourne au menu principal
         Main.loadScene("menu.fxml", "Menu Principal");
     }
 }

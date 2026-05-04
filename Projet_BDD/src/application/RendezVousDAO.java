@@ -36,19 +36,19 @@ public class RendezVousDAO {
     }
 
     public static void addRendezVous(int numPatient, int numMedecin,
-                                      LocalDate date, String heure) {
-        String sql = "INSERT INTO RendezVous VALUES " +
-                     "(SEQ_RendezVous.NEXTVAL,?,?,?,?,DEFAULT)";
-        try (PreparedStatement stmt =
-                DatabaseConnection.getConnection().prepareStatement(sql)) {
-            stmt.setInt(1, numPatient);
-            stmt.setInt(2, numMedecin);
-            stmt.setDate(3, Date.valueOf(date));
-            stmt.setString(4, heure);
-            stmt.executeUpdate();
-        } catch (SQLException e) { e.printStackTrace(); }
-    }
-
+            LocalDate date, String heure) {
+			int newId = DatabaseConnection.getNextId("RendezVous", "Num_RendezVous");
+			String sql = "INSERT INTO RendezVous VALUES (?,?,?,?,?,'Planifie')";
+			try (PreparedStatement stmt =
+			DatabaseConnection.getConnection().prepareStatement(sql)) {
+			stmt.setInt(1, newId);
+			stmt.setInt(2, numPatient);
+			stmt.setInt(3, numMedecin);
+			stmt.setDate(4, Date.valueOf(date));
+			stmt.setString(5, heure);
+			stmt.executeUpdate();
+			} catch (SQLException e) { e.printStackTrace(); }
+			}
     public static void deleteRendezVous(int numRendezVous) {
         String sql = "DELETE FROM RendezVous WHERE Num_RendezVous=?";
         try (PreparedStatement stmt =

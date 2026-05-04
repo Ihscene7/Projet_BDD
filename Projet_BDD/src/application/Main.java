@@ -6,24 +6,25 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class Main extends Application {
+public class Main extends Application {		// Lance l'application JavaFX
 
     private static Stage primaryStage;
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) throws Exception {	//Point d'entrée de l'application
         // Test connexion
         if (DatabaseConnection.getConnection() != null) {
-            System.out.println("✓ Connexion Oracle réussie !");
+            System.out.println("Connexion Oracle réussie !");
         } else {
-            System.out.println("✗ Connexion échouée !");
+            System.out.println("Connexion échouée !");
         }
 
         primaryStage = stage;
-        loadScene("menu.fxml", "Menu Principal");
+        loadScene("menu.fxml", "Menu Principal");	//charge menu.fxml
     }
-    // Static helper — call this from any controller to switch scenes
-    public static void loadScene(String fxmlFile, String title) throws Exception {
+    
+    // Méthode statique pour changer de scène depuis n'importe quel controller 
+    public static void loadScene(String fxmlFile, String title) throws Exception {	
         FXMLLoader loader = new FXMLLoader(
             Main.class.getResource(fxmlFile) 
         );

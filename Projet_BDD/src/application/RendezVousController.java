@@ -297,7 +297,7 @@ public class RendezVousController {
 
         Button saveBtn = new Button("Enregistrer");
         saveBtn.setStyle("-fx-background-color: #2d5f5a; -fx-text-fill: white; " +
-                "-fx-background-radius: 8; -fx-pref-width: 300; -fx-padding: 10;");
+                "-fx-background-radius: 8; -fx-pref-width: 300; -fx-padding: 10; -fx-cursor: hand;");
         
         saveBtn.setOnAction(e -> {
             if (patientBox.getValue() == null || medecinBox.getValue() == null
@@ -347,10 +347,10 @@ public class RendezVousController {
                                     String creneau, Label label) {
         if (medecin == null || date == null || creneau == null) return;
         if (isSlotTaken(medecin, date, creneau)) {
-            label.setText("⚠ Ce créneau est déjà pris !");
+            label.setText("Ce créneau est déjà pris !");
             label.setStyle("-fx-text-fill: #cc0000;");
         } else {
-            label.setText("✓ Créneau disponible");
+            label.setText("Créneau disponible");
             label.setStyle("-fx-text-fill: green;");
         }
     }
@@ -386,7 +386,7 @@ public class RendezVousController {
 
         Button ouiBtn = new Button("OUI");
         ouiBtn.setStyle("-fx-background-color: #d4ece8; " +
-                "-fx-background-radius: 8; -fx-padding: 8 20;");
+                "-fx-background-radius: 8; -fx-padding: 8 20; -fx-cursor: hand;");
         ouiBtn.setOnAction(e -> {
         	RendezVousDAO.deleteRendezVous(rdv.id);
             rendezVousList.remove(rdv);
@@ -396,7 +396,7 @@ public class RendezVousController {
 
         Button nonBtn = new Button("NON");
         nonBtn.setStyle("-fx-background-color: #2d5f5a; -fx-text-fill: white; " +
-                "-fx-background-radius: 8; -fx-padding: 8 20;");
+                "-fx-background-radius: 8; -fx-padding: 8 20; -fx-cursor: hand;");
         nonBtn.setOnAction(e -> dialog.close());
 
         buttons.getChildren().addAll(ouiBtn, nonBtn);
@@ -420,7 +420,7 @@ public class RendezVousController {
         return -1;
     }
     
-    private ImageView getIcon(String filename) {
+    private ImageView getIcon(String filename) {  		//Charge une icône PNG locale et retourne un ImageView 20x20 utilisé par le controller pour les icônes des boutons
         javafx.scene.image.Image img = new javafx.scene.image.Image(
             getClass().getResourceAsStream(filename)
         );

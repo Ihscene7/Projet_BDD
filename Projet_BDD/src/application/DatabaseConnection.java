@@ -2,7 +2,9 @@ package application;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class DatabaseConnection {
 
@@ -25,6 +27,17 @@ public class DatabaseConnection {
             }
         }
         return connection;
+    }
+    
+    public static int getNextId(String tableName, String columnName) {
+        String sql = "SELECT MAX(" + columnName + ") + 1 FROM " + tableName;
+        try (Statement stmt = getConnection().createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 1;
     }
 
     public static void closeConnection() {

@@ -26,14 +26,16 @@ public class PatientDAO {
     }
 
     public static void addPatient(PatientsController.Patient p) {
-        String sql = "INSERT INTO Patient VALUES (SEQ_Patient.NEXTVAL,?,?,?,?,?)";
+        int newId = DatabaseConnection.getNextId("Patient", "Num_Patient");
+        String sql = "INSERT INTO Patient VALUES (?,?,?,?,?,?)";
         try (PreparedStatement stmt =
                 DatabaseConnection.getConnection().prepareStatement(sql)) {
-            stmt.setString(1, p.nom);
-            stmt.setString(2, p.prenom);
-            stmt.setDate(3, Date.valueOf(p.dateNaissance));
-            stmt.setString(4, p.telephone);
-            stmt.setString(5, p.adresse);
+            stmt.setInt(1, newId);
+            stmt.setString(2, p.nom);
+            stmt.setString(3, p.prenom);
+            stmt.setDate(4, Date.valueOf(p.dateNaissance));
+            stmt.setString(5, p.telephone);
+            stmt.setString(6, p.adresse);
             stmt.executeUpdate();
         } catch (SQLException e) { e.printStackTrace(); }
     }

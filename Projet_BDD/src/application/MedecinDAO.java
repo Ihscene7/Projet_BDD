@@ -29,14 +29,15 @@ public class MedecinDAO {
     }
 
     public static void addMedecin(MedecinsController.Medecin m) {
-        String sql = "INSERT INTO Medecin VALUES " +
-                     "(SEQ_Medecin.NEXTVAL,?,?,?,?)";
+        int newId = DatabaseConnection.getNextId("Medecin", "Num_Medecin");
+        String sql = "INSERT INTO Medecin VALUES (?,?,?,?,?)";
         try (PreparedStatement stmt =
                 DatabaseConnection.getConnection().prepareStatement(sql)) {
-            stmt.setString(1, m.nom);
-            stmt.setString(2, m.prenom);
-            stmt.setInt(3, m.codeSpecialite);
-            stmt.setString(4, m.telephone);
+            stmt.setInt(1, newId);
+            stmt.setString(2, m.nom);
+            stmt.setString(3, m.prenom);
+            stmt.setInt(4, m.codeSpecialite);
+            stmt.setString(5, m.telephone);
             stmt.executeUpdate();
         } catch (SQLException e) { e.printStackTrace(); }
     }

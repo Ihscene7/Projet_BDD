@@ -9,7 +9,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.scene.control.Separator;
 import javafx.scene.layout.GridPane;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -145,7 +144,7 @@ public class MedecinsController {
         prenomField.setPromptText("Prénom");
 
         // Speciality ComboBox
-     // Load specialities from DB
+     //Charge les spécialités depuis la base de données
         Map<String, Integer> specialites = SpecialiteDAO.getAllSpecialites();
 
         ComboBox<String> specialiteBox = new ComboBox<>();
@@ -153,22 +152,35 @@ public class MedecinsController {
         specialiteBox.setPromptText("Choisir une spécialité");
         specialiteBox.setPrefWidth(300);
 
-    
-
         TextField telField = new TextField();
         telField.setPromptText("+213XXXXXXXXX");
+        
+        Label ObligationChamps = new Label(""); 
 
         Button saveBtn = new Button("Enregistrer");
         saveBtn.setStyle("-fx-background-color: #2d5f5a; -fx-text-fill: white; " +
                 "-fx-background-radius: 8; -fx-pref-width: 300; -fx-padding: 10;");
         saveBtn.setOnAction(e -> {
-            int codeSP = specialites.get(specialiteBox.getValue()); // ← get ID
+            
+            if (nomField.getText().isEmpty() || prenomField.getText().isEmpty()
+                    || specialiteBox.getValue() == null || telField.getText().isEmpty()) {
+        		ObligationChamps.setText("Veuillez remplir tous les champs.");
+        		ObligationChamps.setStyle("-fx-text-fill: #cc0000;");
+                return;
+            }else if (telField.getText().length() != 10 || !telField.getText().startsWith("0")) {
+            	ObligationChamps.setText("Numéro de téléphone incorrect !");
+        		ObligationChamps.setStyle("-fx-text-fill: #cc0000;");
+        		return;
+            }
+            
+            int codeSP = specialites.get(specialiteBox.getValue()); 
+            
             Medecin m = new Medecin(
                 0,
                 nomField.getText(),
                 prenomField.getText(),
-                codeSP,                    // ← use codeSP
-                specialiteBox.getValue(),  // ← specialite name for display
+                codeSP,                   
+                specialiteBox.getValue(),  
                 telField.getText()
             );
             MedecinDAO.addMedecin(m);
@@ -183,6 +195,7 @@ public class MedecinsController {
             new Label("Prénom"), prenomField,
             new Label("Spécialité"), specialiteBox,
             new Label("Téléphone"), telField,
+            ObligationChamps,
             saveBtn
         );
 
@@ -213,11 +226,23 @@ public class MedecinsController {
         specialiteBox.setPrefWidth(300);
 
         TextField telField = new TextField(m.telephone);
+        
+        Label ObligationChamps = new Label(""); 
 
         Button saveBtn = new Button("Enregistrer");
         saveBtn.setStyle("-fx-background-color: #2d5f5a; -fx-text-fill: white; " +
-                "-fx-background-radius: 8; -fx-pref-width: 300; -fx-padding: 10;");
+                "-fx-background-radius: 8; -fx-pref-width: 300; -fx-padding: 10; -fx-cursor: hand;");
         saveBtn.setOnAction(e -> {
+        	if (nomField.getText().isEmpty() || prenomField.getText().isEmpty()
+                    || specialiteBox.getValue() == null || telField.getText().isEmpty()) {
+        		ObligationChamps.setText("Veuillez remplir tous les champs.");
+        		ObligationChamps.setStyle("-fx-text-fill: #cc0000;");
+                return;
+            }else if (telField.getText().length() != 10 || !telField.getText().startsWith("0")) {
+            	ObligationChamps.setText("Numéro de téléphone incorrect !");
+        		ObligationChamps.setStyle("-fx-text-fill: #cc0000;");
+        		return;
+            }
             m.nom = nomField.getText();
             m.prenom = prenomField.getText();
             m.specialite = specialiteBox.getValue();
@@ -234,6 +259,7 @@ public class MedecinsController {
             new Label("Prénom"), prenomField,
             new Label("Spécialité"), specialiteBox,
             new Label("Téléphone"), telField,
+            ObligationChamps,
             saveBtn
         );
 
@@ -365,7 +391,7 @@ public class MedecinsController {
                 } else {
                     slotBtn.setStyle("-fx-background-color: #d4ece8; " +
                             "-fx-text-fill: #2d5f5a; -fx-background-radius: 8; " +
-                            "-fx-font-size: 12px; -fx-cursor: hand;");
+                            "-fx-font-size: 12px;");
                     slotBtn.setOnAction(e -> {
                         // Mark as taken visually
                         slotBtn.setStyle("-fx-background-color: #f0f0f0; " +
@@ -389,7 +415,7 @@ public class MedecinsController {
         // Close button
         Button closeBtn = new Button("Fermer");
         closeBtn.setStyle("-fx-background-color: #2d5f5a; -fx-text-fill: white; " +
-                "-fx-background-radius: 8; -fx-pref-width: 200; -fx-padding: 8;");
+                "-fx-background-radius: 8; -fx-pref-width: 200; -fx-padding: 8; -fx-cursor: hand;");
         closeBtn.setOnAction(e -> dialog.close());
 
         main.getChildren().addAll(docName, specialite, 
